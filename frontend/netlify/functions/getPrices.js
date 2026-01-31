@@ -1,9 +1,9 @@
 import { MongoClient } from "mongodb";
 
-const uri = process.env.MONGO_URI; // Make sure .env has MONGO_URI, not MONGODB_URI
+const uri = process.env.MONGO_URI;
 let cachedClient = null;
 
-export default async function handler() {
+export async function handler() {
   try {
     if (!cachedClient) {
       cachedClient = new MongoClient(uri);
@@ -13,18 +13,20 @@ export default async function handler() {
     const db = cachedClient.db("catalog");
     const items = await db.collection("price_list").find({}).toArray();
 
-    return new Response(JSON.stringify(items), {
-      status: 200,
+    return {
+      statusCode: 200,
+      body: JSON.stringify(items),
       headers: { "Content-Type": "application/json" },
-    });
+    };
   } catch (err) {
-    console.error(err);
-    return new Response(
-      JSON.stringify({ error: "Failed to fetch prices", details: err.message }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    console.error("Failed to fetch prices:", err);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        error: "Failed to fetch prices",
+        details: err.message,
+      }),
+      headers: { "Content-Type": "application/json" },
+    };
   }
 }

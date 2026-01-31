@@ -1,6 +1,6 @@
 import { MongoClient } from "mongodb";
 
-const uri = process.env.MONGO_URI;
+const uri = process.env.MONGO_URI; // set this in Netlify > Site settings > Environment variables
 let cachedClient = null;
 
 export async function handler(event) {
@@ -14,25 +14,25 @@ export async function handler(event) {
   try {
     const order = JSON.parse(event.body);
 
-    // Add timestamp if not already present
-    if (!order.timestamp) {
-      order.timestamp = new Date().toISOString();
-    }
+    // add timestamp
+    order.timestamp = new Date().toISOString();
 
-    // Connect to MongoDB (reusing cached client if possible)
     if (!cachedClient) {
       cachedClient = new MongoClient(uri);
       await cachedClient.connect();
     }
 
-    const db = cachedClient.db("catalog"); // database name
-    const collection = db.collection("orders"); // collection name
+    const db = cachedClient.db("catalog");
+    const collection = db.collection("orders");
 
     const result = await collection.insertOne(order);
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ success: true, insertedId: result.insertedId }),
+      body: JSON.stringify({
+        success: true,
+        insertedId: result.insertedId,
+      }),
     };
   } catch (err) {
     console.error("Failed to insert order:", err);

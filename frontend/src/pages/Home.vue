@@ -194,11 +194,13 @@ const paymentMethod = ref("PayNow");
 const toastMsg = ref('');
 const toastVisible = ref(false);
 
-const colorMap = ['#FFE5E7', '#D5D1E9', '#D0E4EE', '#F3F5A9', '#F5CF9F']
+const colorMap = ['#FFE5E7', '#D5D1E9', '#D0E4EE', '#F3F5A9', '#F5CF9F'];
+
+const apiBase = process.env.API_BASE;
 
 async function fetchPrices() {
   try {
-    const res = await fetch("/.netlify/functions/getPrices");
+    const res = await fetch(`${apiBase}/getPrices`);
     if (!res.ok) throw new Error("Failed to fetch prices");
     items.value = await res.json();
 
@@ -339,7 +341,7 @@ async function checkout() {
   };
 
   try {
-    const res = await fetch("/.netlify/functions/createOrder", {
+    const res = await fetch(`${apiBase}/createOrder`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(order),

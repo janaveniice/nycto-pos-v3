@@ -198,7 +198,7 @@ const colorMap = ['#FFE5E7', '#D5D1E9', '#D0E4EE', '#F3F5A9', '#F5CF9F'];
 
 async function fetchPrices() {
   try {
-    const res = await fetch(import.meta.env.VITE_API_BASE + "/getPrices");
+    const res = await fetch("/.netlify/functions/getPrices");
     if (!res.ok) throw new Error("Failed to fetch prices");
     items.value = await res.json();
 
@@ -339,7 +339,7 @@ async function checkout() {
   };
 
   try {
-    const res = await fetch(import.meta.env.VITE_API_BASE + "/createOrder", {
+    const res = await fetch("/.netlify/functions/createOrder", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(order),

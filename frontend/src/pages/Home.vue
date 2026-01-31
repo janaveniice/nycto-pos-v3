@@ -171,6 +171,15 @@
       </div>
     </div>
 
+    <div
+  v-if="createLoading"
+  class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+>
+  <div class="flex flex-col items-center gap-4">
+    <span class="loading loading-spinner text-pink-300"></span>
+    <span class="text-sm text-white animate-pulse">Wait ah, I'm creating the order... </span>
+  </div>
+</div>
 
   </div>
 </template>
@@ -193,6 +202,7 @@ const searchQuery = ref("");
 const paymentMethod = ref("PayNow"); 
 const toastMsg = ref('');
 const toastVisible = ref(false);
+const createLoading = ref(false);
 
 const colorMap = ['#FFE5E7', '#D5D1E9', '#D0E4EE', '#F3F5A9', '#F5CF9F'];
 
@@ -322,6 +332,8 @@ async function checkout() {
     return;
   }
 
+  createLoading.value = true;
+
   const order = {
     items: orderItems.value.map(item => ({
       _id: item._id,
@@ -355,6 +367,7 @@ async function checkout() {
     toastMsg.value = "Checkout error. Jana fked up somewhr...";
     toastDisappear();
   } finally {
+    createLoading.value = false;
     toastVisible.value = true;
     toastMsg.value = "Order created successfully yay!";
     toastDisappear();

@@ -16,6 +16,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+body {
+  background-color: #ffffff !important;
+}
+
 .loading-spinner {
   height: 2em;
   width: auto;

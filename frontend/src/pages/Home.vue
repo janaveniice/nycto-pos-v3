@@ -10,21 +10,21 @@
       <div v-else class="text-xs">
         <section class="flex flex-row justify-between items-center">
           <section class="flex flex-col gap-2">
-          <h2 class="font-semibold text-base">Types</h2>
-          <section class="flex gap-2 flex-wrap">
-            <article
-              v-for="type in types"
-              :key="type"
-              @click="selectType(type)"
-              :class="[
-                'w-fit rounded-xl px-3 py-1 border border-black hover:cursor-pointer',
-                selectedType === type ? 'bg-pink-200' : ''
-              ]"
-            >
-              <span>{{ type }}</span>
-            </article>
+            <h2 class="font-semibold text-base">Types</h2>
+            <section class="flex gap-2 flex-wrap">
+              <article
+                v-for="type in types"
+                :key="type"
+                @click="selectType(type)"
+                :class="[
+                  'w-fit rounded-xl px-3 py-1 border border-black hover:cursor-pointer',
+                  selectedType === type ? 'bg-pink-200' : ''
+                ]"
+              >
+                <span>{{ type }}</span>
+              </article>
+            </section>
           </section>
-        </section>
         <!-- Search -->
         <label class="input bg-white mt-4 rounded-3xl w-80 border border-gray-400">
           <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">

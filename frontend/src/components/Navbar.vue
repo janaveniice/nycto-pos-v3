@@ -11,7 +11,7 @@
         </RouterLink>
 
         <RouterLink
-            to="/"
+            to="/pos"
             class="text-gray-700 hover:text-pink-300"
             active-class="font-semibold text-pink-300"
         >
@@ -25,6 +25,28 @@
         >
             Admin
         </RouterLink>
+
+        <div class="w-px h-6 bg-gray-300"></div>
+
+        <p @click="logout" class="text-black hover:cursor-pointer">Logout</p>
     </nav>
   </div>
 </template>
+
+<script setup>
+import { useRouter } from "vue-router";
+const router = useRouter();
+
+async function logout() {
+  try {
+    await fetch("/.netlify/functions/logout", {
+      method: "POST",
+      credentials: "include"
+    });
+
+    router.push("/");
+  } catch (err) {
+    console.error("Logout failed", err);
+  }
+}
+</script>

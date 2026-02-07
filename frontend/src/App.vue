@@ -1,9 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <!-- Navbar component -->
-    <Navbar />
+    <Navbar v-if="!route.meta.hideNavbar" />
 
-    <!-- Main page content rendered by Vue Router -->
     <main class="p-6">
       <router-view />
     </main>
@@ -11,9 +9,8 @@
 </template>
 
 <script setup>
+import { useRoute } from "vue-router";
 import Navbar from "./components/Navbar.vue";
-</script>
 
-<style>
-/* optional global App styles */
-</style>
+const route = useRoute();
+</script>

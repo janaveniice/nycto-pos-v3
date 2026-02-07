@@ -61,7 +61,7 @@
             v-for="(item, idx) in displayedItems"
             :key="item._id"
             class="border border-gray-300 px-4 py-3 rounded-xl hover:cursor-pointer flex flex-row justify-between items-center"
-            @click="addItem(item)"
+            @click="handleItemClick(item)"
           >
             <article class="flex flex-row gap-4 items-center">
               <div class="p-1.5 rounded-lg" :style="{ backgroundColor: getCategoryColor(item.category) }">
@@ -72,10 +72,19 @@
                 <span class="text-xs">{{ item.category }}</span>
               </article>
             </article>
-            <article class="flex gap-2 text-base">
+            <article v-if="item.price !== null" class="flex gap-2 text-base">
               <span>${{ item.price }}</span>
               <span v-if="item.price !== item.origPrice" class="line-through">${{ item.origPrice }}</span>
             </article>
+            <article v-if="item.price === null && item.fromRange !== null" class="flex gap-2 text-base">
+              <span>${{ item.fromRange }} — ${{ item.toRange }}</span>
+            </article>
+            <article v-if="item.price === null && item.fromRange === null" class="flex gap-2 text-base">
+              <span>Custom</span>
+            </article>
+          </article>
+          <article v-if="!displayedItems.length">
+            No items. I think you searching wrongly.
           </article>
         </section>
       </div>
@@ -84,20 +93,26 @@
     <!-- Fixed right sidebar -->
     <aside class="text-black w-76 h-[calc(100vh-64px)] bg-gray-100 border-l border-gray-300 fixed right-0 top-[3.75rem] p-4 flex flex-col gap-2">
 
-      <section class="flex flex-row gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-        </svg>
-        <h2 class="font-semibold text-base">Order Cart</h2>
+      <section class="flex flex-row gap-2 items-center justify-between">
+        <article class="flex flex-row gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+          </svg>
+          <h2 class="font-semibold text-base">Order Cart</h2>
+        </article>
+        <span @click="clearItems" v-if="orderItems.length" class="text-xs underline hover:cursor-pointer">Clear</span>
       </section>
       
       <section class="mt-2 flex flex-col flex-1">
         <h2 class="font-semibold text-sm">Order Items</h2>
         <span v-if="orderItems.length === 0" class="text-xs mt-3">No items in order.</span>
 
-        <section class="h-58 overflow-y-auto">
+        <section class="h-61 overflow-y-auto">
           <article v-for="item in orderItems" class="flex flex-row rounded-xl mt-3 justify-between items-center">
             <article class="flex flex-row gap-2 items-center">
+              <svg @click="removeItem(item)" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 mr-1 hover:cursor-pointer">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+              </svg>
               <div class="p-1.5 bg-pink-200 rounded-xl">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
@@ -172,15 +187,46 @@
     </div>
 
     <div
-  v-if="createLoading"
-  class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
->
-  <div class="flex flex-col items-center gap-4">
-    <span class="loading loading-spinner text-pink-300"></span>
-    <span class="text-sm text-white animate-pulse">Wait ah, I'm creating the order... </span>
-  </div>
-</div>
+      v-if="createLoading"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+    >
+      <div class="flex flex-col items-center gap-4">
+        <span class="loading loading-spinner text-pink-300"></span>
+        <span class="text-sm text-white animate-pulse">Wait ah, I'm creating the order... </span>
+      </div>
+    </div>
 
+    <div
+      v-if="showPriceModal"
+      class="fixed inset-0 bg-black/50 flex text-black items-center justify-center z-50"
+    >
+      <div class="bg-white p-6 rounded-xl w-72 flex flex-col gap-4">
+        <h3 class="font-semibold">Enter price</h3>
+
+        <label class="text-xs -mb-2">Custom Price</label>
+        <input
+          type="number"
+          class="input input-sm bg-white text-black border border-gray-200"
+          v-model.number="customPrice"
+        />
+
+        <div class="flex mt-2 gap-2 justify-end">
+          <button
+            class="px-3 py-1 text-sm"
+            @click="showPriceModal = false"
+          >
+            Cancel
+          </button>
+
+          <button
+            class="px-3 py-1 text-sm bg-pink-200 rounded-lg"
+            @click="confirmCustomPrice"
+          >
+            Add
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -203,8 +249,11 @@ const paymentMethod = ref("PayNow");
 const toastMsg = ref('');
 const toastVisible = ref(false);
 const createLoading = ref(false);
+const showPriceModal = ref(false)
+const selectedItem = ref(null)
+const customPrice = ref(0)
 
-const colorMap = ['#FFE5E7', '#D5D1E9', '#D0E4EE', '#F3F5A9', '#F5CF9F'];
+const colorMap = ['#FFE5E7', '#D5D1E9', '#D0E4EE', '#F3F5A9', '#F5CF9F', '#ADEBB3'];
 
 async function fetchPrices() {
   try {
@@ -246,6 +295,7 @@ function capitalize(str) {
 }
 
 function selectType(type) {
+  selectedCategory.value = '';
   selectedType.value = type;
 
   // Update filteredItems & categories whenever a type is clicked
@@ -287,6 +337,28 @@ function getCategoryColor(category) {
   return categoryColorMap.value[category]
 }
 
+function handleItemClick(item) {
+  if (item.price === null) {
+    selectedItem.value = item
+    customPrice.value = item.fromRange
+    showPriceModal.value = true
+  } else {
+    addItem(item)
+  }
+}
+
+function confirmCustomPrice() {
+  const item = {
+    ...selectedItem.value,
+    price: customPrice.value,
+    origPrice: customPrice.value
+  }
+
+  addItem(item)
+  showPriceModal.value = false
+}
+
+
 function addItem(item) {
   const existing = orderItems.value.find(i => i._id === item._id)
 
@@ -313,6 +385,17 @@ function minusQty(item) {
   }
 }
 
+function removeItem(item) {
+  const index = orderItems.value.findIndex(i => i._id === item._id)
+  if (index !== -1) {
+    orderItems.value.splice(index, 1)
+  }
+}
+
+function clearItems() {
+  orderItems.value = [];
+}
+
 const subtotal = computed(() =>
   orderItems.value.reduce((sum, i) => sum + i.price * i.qty, 0)
 )
@@ -334,6 +417,8 @@ async function checkout() {
 
   createLoading.value = true;
 
+  const types = [...new Set(orderItems.value.map(i => i.type))]
+
   const order = {
     items: orderItems.value.map(item => ({
       _id: item._id,
@@ -341,8 +426,11 @@ async function checkout() {
       category: item.category,
       price: item.price,
       qty: item.qty,
-      origPrice: item.origPrice
+      origPrice: item.origPrice,
+      type: item.type
     })),
+    orderType: types.length === 1 ? types[0] : "Mixed",
+    orderTypes: types,
     subtotal: subtotal.value,
     discount: discount.value || 0,
     total: total.value,

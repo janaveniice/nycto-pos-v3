@@ -276,26 +276,34 @@ function isSameMonth(a, b) {
 }
 
 const dailyStats = computed(() => {
-  if (!selectedDay.value) return {
-    totalOrders: 0,
-    totalEarnings: 0,
-    payNowTotal: 0,
-    cashTotal: 0
-  };
+  if (!selectedDay.value) {
+    return {
+      totalOrders: 0,
+      totalEarnings: 0,
+      payNowTotal: 0,
+      cashTotal: 0
+    };
+  }
 
-  const todayStr = selectedDay.value; // e.g. "2025-02-07"
+  const todayStr = selectedDay.value;
 
   const todayOrders = orders.value.filter(o => {
-    const orderDateStr = o.timestamp.slice(0, 10); // "YYYY-MM-DD"
-    return orderDateStr === todayStr;
+    const d = new Date(o.timestamp);
+
+    const localDateStr =
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+    return localDateStr === todayStr;
   });
 
   return {
     totalOrders: todayOrders.length,
     totalEarnings: todayOrders.reduce((sum, o) => sum + o.total, 0),
+
     payNowTotal: todayOrders
       .filter(o => o.paymentMethod === "PayNow")
       .reduce((sum, o) => sum + o.total, 0),
+
     cashTotal: todayOrders
       .filter(o => o.paymentMethod === "Cash")
       .reduce((sum, o) => sum + o.total, 0),
@@ -334,15 +342,27 @@ const displayedOrders = computed(() => {
   if (selectedType.value === "Daily") {
     if (!selectedDay.value) return [];
 
-    // Compare YYYY-MM-DD strings
-    return orders.value.filter(o => o.timestamp.slice(0, 10) === selectedDay.value);
+    return orders.value.filter(o => {
+      const d = new Date(o.timestamp);
+
+      const localDate =
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+      return localDate === selectedDay.value;
+    });
   }
 
   if (selectedType.value === "Monthly") {
     if (!selectedMonth.value) return [];
 
-    // Compare YYYY-MM strings
-    return orders.value.filter(o => o.timestamp.slice(0, 7) === selectedMonth.value);
+    return orders.value.filter(o => {
+      const d = new Date(o.timestamp);
+
+      const localMonth =
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+
+      return localMonth === selectedMonth.value;
+    });
   }
 
   return [];

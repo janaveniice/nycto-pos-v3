@@ -283,8 +283,8 @@ function handleActionClick(item) {
       name: "",
       category: "",
       type: "",
-      origPrice: "",
-      price: "",
+      origPrice: null,
+      price: null,
       fromRange: "",
       toRange: ""
     }
@@ -314,12 +314,12 @@ const categories = computed(() => {
 
 async function submit() {
   const item = {
-    _id: itemToAct.value._id ? itemToAct.value._id : '',  // Only needed for updates
+    _id: itemToAct.value._id ? itemToAct.value._id : '',
     name: itemToAct.value.name,
     type: itemToAct.value.type,
     category: itemToAct.value.category,
-    origPrice: itemToAct.value.origPrice,
-    price: itemToAct.value.price,
+    origPrice: itemToAct.value.origPrice ? itemToAct.value.origPrice : null,
+    price: itemToAct.value.price ? itemToAct.value.price : null,
     fromRange: itemToAct.value.fromRange,
     toRange: itemToAct.value.toRange
   };

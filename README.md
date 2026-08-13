@@ -1,7 +1,7 @@
 # Nycto Studio POS
 
 ### Motivation
-Developed this software application for my friend who owns a Nail Salon business, Nycto Studio. This application serves as her personal POS system, keeping track of sales, inventory, and her customer engagement. What makes this unique is that it doesn't follow the structure of existing POS system structure, allowing her to customise features according to her business needs. This is also good for small businesses, like hers, so that they don't need to pay premiums for more advanced POS system functionalities.
+Developed this software application for my friend who owns a Nail Salon business, Nycto Studio (@nyctostudio on IG). This application serves as her personal POS system, keeping track of sales, inventory, and her customer engagement. What makes this unique is that it doesn't follow the structure of existing POS system structure, allowing her to customise features according to her business needs. This is also good for small businesses, like hers, so that they don't need to pay premiums for more advanced POS system functionalities.
 
 ### Tech Stack
 1. **Frontend:** Vue.js, TailwindCSS

@@ -52,7 +52,7 @@
             :key="item._id"
             class="flex flex-row gap-4 items-center"
           >
-            <svg @click="openDelModal(item._id)"xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 hover:cursor-pointer">
+            <svg @click="openDelModal(item._id)" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 hover:cursor-pointer">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
             </svg>
             <article

@@ -140,8 +140,16 @@
 
             <!-- Collapsible content -->
             <div v-show="isOpen(index)" class="px-4 py-3 bg-white flex flex-col gap-2">
-              <p><strong>Date/ Time:</strong> {{ formatTime(order.timestamp) }}</p>
-              <p><strong>Payment Method:</strong> {{ order.paymentMethod }}</p>
+              <article class="flex flex-row justify-between">
+                <article class="flex flex-col space-y-1 pl-2">
+                  <p><strong>Date/ Time:</strong> {{ formatTime(order.timestamp) }}</p>
+                  <p><strong>Payment Method:</strong> {{ order.paymentMethod }}</p>
+                </article>
+
+                <article @click="openDelModal(order._id)" class="w-fit text-sm bg-pink-200 text-black py-2 px-4 rounded-2xl hover:bg-pink-300 transition">
+                  Delete
+                </article>
+              </article>
 
               <!-- Items table -->
               <table class="w-full mt-2 text-left text-sm border-collapse">
@@ -185,6 +193,45 @@
           <p v-if="!displayedOrders.length" class="text-xs mt-3">No orders yet! Gotta convince the girlie pops to get their nails done!</p>
         </div>
       </div>
+
+      <div v-if="toastVisible" class="toast toast-top z-100 toast-center">
+        <div class="alert alert-info px-2 py-1 bg-pink-100 border-pink-100">
+          <span class="text-xs">{{ toastMsg }}</span>
+        </div>
+      </div>
+
+      <div
+        v-if="deleteLoading"
+        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      >
+        <div class="flex flex-col items-center gap-4">
+          <span class="loading loading-spinner text-pink-300"></span>
+          <span class="text-sm text-white animate-pulse">Wait ah, I'm updating at the back keke... </span>
+        </div>
+      </div>
+
+      <div
+        v-if="showDelModal"
+        class="fixed inset-0 bg-black/50 flex text-black items-center justify-center z-50"
+      >
+        <section class="bg-white p-6 rounded-xl w-1/4 flex flex-col gap-4">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="size-12">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m6 4.125 2.25 2.25m0 0 2.25 2.25M12 13.875l2.25-2.25M12 13.875l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
+          </svg>
+          <article class="flex flex-col gap-3">
+            <h3 class="font-semibold text-2xl">Delete item?</h3>
+            <span>I can't undo this for you girlie.</span>
+          </article>
+          <article class="flex flex-row gap-2">
+            <button @click="closeDelModal" class="w-full mt-4 text-sm bg-gray-300 text-black py-2 px-4 rounded-2xl hover:bg-pink-300 transition">
+              Cancel
+            </button>
+            <button @click="deleteItem(idToDel)" class="w-full mt-4 text-sm bg-pink-200 text-black py-2 px-4 rounded-2xl hover:bg-pink-300 transition">
+              Delete
+            </button>
+          </article>
+        </section>
+      </div>
     </div>
   </div>
 </template>
@@ -200,6 +247,11 @@ const types = ref(["Daily", "Monthly"]);
 const selectedType = ref('Daily');
 const selectedDay = ref('');
 const openIndexes = ref([]);
+const showDelModal = ref(false);
+const idToDel = ref('');
+const toastVisible = ref(false);
+const toastMsg = ref('');
+const deleteLoading = ref(false);
 
 async function fetchPrices() {
   try {
@@ -394,6 +446,51 @@ function formatTime(isoString) {
   };
 
   return date.toLocaleString("en-US", options);
+}
+
+function toastDisappear() {
+  setTimeout(() => {
+      toastVisible.value = false;
+    }, 2000);
+}
+
+function openDelModal(id) {
+  showDelModal.value = true;
+  idToDel.value = id;
+}
+
+function closeDelModal() {
+  idToDel.value = '';
+  showDelModal.value = false
+}
+
+async function deleteItem(_id) {
+  try {
+    deleteLoading.value = true;
+    const response = await fetch("/.netlify/functions/deleteOrder", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ _id }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      console.log("Item deleted:", data);
+    } else {
+      console.error("Error deleting item:", data);
+    }
+  } catch (err) {
+    console.error("Network error:", err);
+  } finally {
+    idToDel.value = '';
+    closeDelModal();
+    toastVisible.value = true;
+    toastMsg.value = "We deleted her successfully yay!";
+    toastDisappear();
+    fetchPrices();
+    deleteLoading.value = false;
+  }
 }
 
 </script>
